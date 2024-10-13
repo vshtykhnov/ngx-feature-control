@@ -6,7 +6,7 @@ import { FeatureToggleService } from './feature-toggle.service';
     selector: 'app-feature-toggle',
     template: `<ng-container #featureToggleComponent></ng-container>`,
 })
-export class FeatureToggleComponent implements OnInit {
+export class FeatureToggleComponentLoader implements OnInit {
     @ViewChild('featureToggleComponent', { read: ViewContainerRef, static: true })
     viewContainerRef!: ViewContainerRef;
 
@@ -18,7 +18,7 @@ export class FeatureToggleComponent implements OnInit {
     async ngOnInit() {
         const routeData = this.route.snapshot.data;
         const features = routeData['features'];
-        let component: Type<any> | null = null;
+        let component: Type<unknown> | null = null;
 
         for (const feature of features) {
             if (this.featureToggleService.isFeatureEnabled(feature.featureFlag)) {
@@ -28,7 +28,11 @@ export class FeatureToggleComponent implements OnInit {
         }
 
         if (!component) {
-            component = await routeData['default']();
+            if (routeData['default']) {
+                component = await routeData['default']();
+            } else {
+                console.error('No default component found and no feature component matched.');
+            }
         }
 
         if (component) {

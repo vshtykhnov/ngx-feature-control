@@ -86,12 +86,12 @@ You can use feature toggles to conditionally load components based on feature st
 
 ```typescript
 import { Routes } from '@angular/router';
-import { FeatureToggleComponent } from 'ngx-feature-control';
+import { FeatureToggleComponentLoader } from 'ngx-feature-control';
 
 export const routes: Routes = [
     {
         path: 'business',
-        component: FeatureToggleComponent,
+        component: FeatureToggleComponentLoader,
         data: {
             features: [
                 {
@@ -109,7 +109,37 @@ export const routes: Routes = [
 ];
 ```
 
-In this example, the `FeatureToggleComponent` is used to dynamically load the appropriate component based on the feature flag provided in the `data`. If a feature flag is enabled, the corresponding component is loaded lazily. If no feature flag matches, a default component is loaded.
+In this example, the `FeatureToggleComponentLoader` is used to dynamically load the appropriate component based on the feature flag provided in the `data`. If a feature flag is enabled, the corresponding component is loaded lazily. If no feature flag matches, a default component is loaded.
+
+### Using Feature Toggles in Lazy Loaded Modules
+
+You can also use feature toggles to conditionally load entire modules based on feature states in lazy-loaded routes:
+
+```typescript
+import { Routes } from '@angular/router';
+import { FeatureToggleModuleLoader } from 'ngx-feature-control';
+
+export const routes: Routes = [
+    {
+        path: 'business',
+        component: FeatureToggleModuleLoader,
+        data: {
+            features: [
+                {
+                    featureFlag: 'users',
+                    module: () => import('./modules/users/user.module').then(m => m.UserModule),
+                },
+                {
+                    featureFlag: 'contacts',
+                    module: () => import('./modules/contacts/contact.module').then(m => m.ContactsModule),
+                },
+            ],
+        }
+    },
+];
+```
+
+In this example, the `FeatureToggleModuleLoader` is used to load entire modules conditionally based on the feature flag. If the feature flag is enabled, the corresponding module is loaded lazily. This allows you to manage and conditionally load larger parts of your application dynamically.
 
 ## Development
 
@@ -131,4 +161,4 @@ npm test
 
 ## Contributions
 
-Any contribution is welcome. Please check out `CONTRIBUTING.md` for instructions.
+Any contribution is welcome. Please check out `CONTRIBUTING.md` for instructions.  
