@@ -80,60 +80,36 @@ export class ExampleComponent {
 }
 ```
 
-### Handling Dependencies
+### Using Feature Toggles in Lazy Loaded Routes
 
-If a feature depends on another feature, it won't be active unless all its dependencies are active.
+You can use feature toggles to conditionally load components based on feature states in lazy-loaded routes:
 
 ```typescript
-const features = [
-  { name: 'featureA', isEnabled: true, dependencies: ['featureB'] }, // featureA depends on featureB
-  { name: 'featureB', isEnabled: false } // featureB is disabled
+import { Routes } from '@angular/router';
+import { FeatureToggleComponent } from 'ngx-feature-control';
+
+export const routes: Routes = [
+    {
+        path: 'business',
+        component: FeatureToggleComponent,
+        data: {
+            features: [
+                {
+                    featureFlag: 'business',
+                    component: () => import('./modules/business/business.component').then(m => m.BusinessComponent),
+                },
+                {
+                    featureFlag: 'contacts',
+                    component: () => import('./modules/contacts/contacts.component').then(m => m.ContactsComponent),
+                }
+            ],
+            default: () => import('./modules/business/business.component').then(m => m.BusinessComponent),
+        }
+    },
 ];
 ```
 
-In this case, even though `featureA` is enabled, it will not be active because `featureB`, its dependency, is disabled.
-
-### Example with Dependencies
-
-```typescript
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-example-dependencies',
-  template: `
-    <div *appFeatureIf="['featureA']">
-      This section is visible only if 'featureA' is enabled and all its dependencies are also enabled.
-    </div>
-  `
-})
-export class ExampleDependenciesComponent {
-  public featureToggleData = [
-    { name: 'featureA', isEnabled: true, dependencies: ['featureB'] }, // featureA depends on featureB
-    { name: 'featureB', isEnabled: false } // featureB is disabled
-  ];
-}
-```
-
-### Example without Dependencies
-
-```typescript
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-example-no-dependencies',
-  template: `
-    <div *appFeatureIf="['featureA']">
-      This section is visible because 'featureA' is enabled and has no dependencies.
-    </div>
-  `
-})
-export class ExampleNoDependenciesComponent {
-  public featureToggleData = [
-    { name: 'featureA', isEnabled: true }, // featureA is enabled
-    { name: 'featureB', isEnabled: false } // featureB is disabled, but does not affect featureA
-  ];
-}
-```
+In this example, the `FeatureToggleComponent` is used to dynamically load the appropriate component based on the feature flag provided in the `data`. If a feature flag is enabled, the corresponding component is loaded lazily. If no feature flag matches, a default component is loaded.
 
 ## Development
 
