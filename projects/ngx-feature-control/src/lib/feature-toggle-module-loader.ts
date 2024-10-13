@@ -7,7 +7,6 @@ import { FeatureToggleService } from './feature-toggle.service';
     template: `<router-outlet></router-outlet>`,
 })
 export class FeatureToggleModuleLoader implements OnInit {
-
     constructor(
         private featureToggleService: FeatureToggleService,
         private route: ActivatedRoute,
@@ -32,9 +31,15 @@ export class FeatureToggleModuleLoader implements OnInit {
 
         if (module) {
             const currentUrl = this.route.snapshot.url.map(segment => segment.path).join('/');
+            const currentRoute = this.router.config.find(route => route.path === currentUrl && route.component === FeatureToggleModuleLoader);
 
-            this.router.resetConfig([{ path: currentUrl, loadChildren: module }]);
-            this.router.navigateByUrl(currentUrl);
+            if (currentRoute) {
+                const updatedRoute = { ...currentRoute, loadChildren: module, component: undefined };
+                this.router.resetConfig(this.router.config.map(route => route === currentRoute ? updatedRoute : route));
+                this.router.navigateByUrl(currentUrl, { skipLocationChange: true });
+            } else {
+                console.error('No matching route found to modify.');
+            }
         } else {
             console.error('No module found to load.');
         }
