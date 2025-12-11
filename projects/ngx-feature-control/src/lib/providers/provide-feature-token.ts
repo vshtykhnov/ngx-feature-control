@@ -1,8 +1,6 @@
-import { inject, InjectionToken, Provider, Type } from '@angular/core';
+import { InjectionToken, Provider } from '@angular/core';
 import { FeatureToken } from '../types/feature-token.type';
-import { FeatureFlagsService } from '../services/feature-flags.service';
-import { getFeatureImplEntry } from '../registry/feature-registry';
-import { FeatureImplEntry } from '../registry/feature-impl-entry.interface';
+import { FeatureImplementationResolver } from '../services/feature-impl-resolver.service';
 
 /**
  * Creates a provider for a feature token that dynamically resolves to the correct
@@ -28,32 +26,7 @@ export function provideFeatureToken<T>(
 ): Provider {
   return {
     provide: token,
-    useFactory: () => {
-      const flags = inject(FeatureFlagsService);
-      const def: FeatureImplEntry | undefined = getFeatureImplEntry(
-        token as FeatureToken<unknown>,
-      );
-
-      if (!def) {
-        throw new Error(
-          `No feature implementations registered for token ${
-            (token as any).name ?? token.toString()
-          }`,
-        );
-      }
-
-      const isOn = flags.isEnabled(def.key)();
-      const Impl = (isOn ? def.enabled : def.disabled) as Type<T> | undefined;
-
-      if (!Impl) {
-        throw new Error(
-          `Missing ${
-            isOn ? 'enabled' : 'disabled'
-          } implementation for feature ${def.key}`,
-        );
-      }
-
-      return inject(Impl);
-    },
+    deps: [FeatureImplementationResolver],
+    useFactory: (resolver: FeatureImplementationResolver) => resolver.resolve(token),
   };
 }
