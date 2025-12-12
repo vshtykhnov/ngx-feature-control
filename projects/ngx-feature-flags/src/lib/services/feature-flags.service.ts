@@ -1,49 +1,35 @@
 import { Injectable, computed, signal } from '@angular/core';
 
-/**
- * Сервис для управления feature flags
- *
- * Использование:
- *   flags.setFlags({ 'payment.new-flow': true });
- *   flags.patchFlags({ 'payment.new-flow': false });
- *   flags.isEnabled('payment.new-flow')(); // reactive
- */
+type FlagValue = boolean | string;
+
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagsService {
-  private readonly _flags = signal<Record<string, boolean>>({});
+  private readonly _flags = signal<Record<string, FlagValue>>({});
 
-  /**
-   * Возвращает реактивный сигнал для конкретного флага
-   */
   isEnabled(key: string) {
     return computed(() => !!this._flags()[key]);
   }
 
-  /**
-   * Заменяет все флаги
-   */
-  setFlags(flags: Record<string, boolean>): void {
+  getVariant(key: string) {
+    return computed(() => {
+      const value = this._flags()[key];
+      return typeof value === 'string' ? value : null;
+    });
+  }
+
+  setFlags(flags: Record<string, FlagValue>): void {
     this._flags.set(flags);
   }
 
-  /**
-   * Обновляет флаги частично (merge)
-   */
-  patchFlags(flags: Partial<Record<string, boolean>>): void {
-    this._flags.update(curr => ({ ...curr, ...flags } as Record<string, boolean>));
+  patchFlags(flags: Partial<Record<string, FlagValue>>): void {
+    this._flags.update(curr => ({ ...curr, ...flags } as Record<string, FlagValue>));
   }
 
-  /**
-   * Получить текущее значение флага (не реактивно)
-   */
-  getFlag(key: string): boolean {
-    return !!this._flags()[key];
+  getFlag(key: string): FlagValue | undefined {
+    return this._flags()[key];
   }
 
-  /**
-   * Получить все флаги
-   */
-  getAllFlags(): Record<string, boolean> {
+  getAllFlags(): Record<string, FlagValue> {
     return this._flags();
   }
 }
