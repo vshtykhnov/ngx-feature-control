@@ -1,21 +1,26 @@
-import { Provider, EnvironmentProviders, makeEnvironmentProviders, inject } from '@angular/core';
+import {
+  EnvironmentProviders,
+  InjectionToken,
+  makeEnvironmentProviders,
+  inject,
+  provideEnvironmentInitializer,
+} from '@angular/core';
 import { FeatureFlagsService } from '../services/feature-flags.service';
+
+export const DEFAULT_FEATURE_FLAGS =
+  new InjectionToken<Record<string, boolean | string>>('DEFAULT_FEATURE_FLAGS');
 
 export function provideNgxFeature(
   defaultFlags?: Record<string, boolean | string>
 ): EnvironmentProviders {
-  const providers: Provider[] = [];
+  return makeEnvironmentProviders([
+    ...(defaultFlags ? [{ provide: DEFAULT_FEATURE_FLAGS, useValue: defaultFlags }] : []),
 
-  if (defaultFlags) {
-    providers.push({
-      provide: 'NGX_FEATURE_INIT',
-      useFactory: () => {
-        inject(FeatureFlagsService).setFlags(defaultFlags);
-        return null;
-      },
-      multi: true,
-    });
-  }
-
-  return makeEnvironmentProviders(providers);
+    provideEnvironmentInitializer(() => {
+      const flags = inject(FeatureFlagsService);
+      const defaults =
+        defaultFlags ?? inject(DEFAULT_FEATURE_FLAGS, { optional: true }) ?? {};
+      flags.setFlags(defaults as Record<string, boolean>);
+    }),
+  ]);
 }
