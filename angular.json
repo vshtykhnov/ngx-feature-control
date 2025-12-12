@@ -3,35 +3,28 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ngx-feature-control": {
+    "ngx-feature-flags": {
       "projectType": "library",
-      "root": "projects/ngx-feature-control",
-      "sourceRoot": "projects/ngx-feature-control/src",
-      "prefix": "lib",
+      "root": "projects/ngx-feature-flags",
+      "sourceRoot": "projects/ngx-feature-flags/src",
+      "prefix": "ngxf",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "project": "projects/ngx-feature-control/ng-package.json"
-          },
+          "builder": "@angular/build:ng-packagr",
           "configurations": {
             "production": {
-              "tsConfig": "projects/ngx-feature-control/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ngx-feature-flags/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ngx-feature-control/tsconfig.lib.json"
+              "tsConfig": "projects/ngx-feature-flags/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/ngx-feature-control/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "tsConfig": "projects/ngx-feature-flags/tsconfig.spec.json"
           }
         }
       }

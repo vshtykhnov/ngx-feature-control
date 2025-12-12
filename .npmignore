@@ -1,7 +1,0 @@
-node_modules/
-projects/**/node_modules/
-dist/
-.git/
-.vscode/
-.angular/
-coverage/

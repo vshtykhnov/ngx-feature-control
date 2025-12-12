@@ -1,0 +1,16 @@
+{
+  "name": "ngx-feature-flags",
+  "version": "1.0.0",
+  "description": "Feature flags library for Angular with runtime switching support",
+  "keywords": ["angular", "feature-flags", "feature-toggle", "angular20"],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^20.0.0",
+    "@angular/core": "^20.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
